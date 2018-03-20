@@ -1,5 +1,6 @@
 package assignment4;
 
+import java.util.List;
 
 /*
  * Example critter
@@ -55,7 +56,8 @@ public class Craig extends Critter {
 		dir = (dir + turn) % 8;
 	}
 
-	public static void runStats(java.util.List<Critter> craigs) {
+	//@Override
+	public static void runStats(List<Critter> craigs) {
 		int total_straight = 0;
 		int total_left = 0;
 		int total_right = 0;

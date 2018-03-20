@@ -12,8 +12,10 @@ package assignment4;
  * Fall 2016
  */
 
+import java.util.List;
 import java.util.Scanner;
 import java.io.*;
+import java.lang.reflect.Method;
 
 
 /*
@@ -174,7 +176,14 @@ public class Main {
             		}
             		
             		className = myPackage + "." + inputs[1];
-            		Critter.runStats(Critter.getInstances(className));
+            		
+            		Class<?> critterClass = Class.forName(className);
+            		
+            		Critter crit = (Critter) critterClass.newInstance();
+            		
+            		Method method = critterClass.getMethod("runStats", List.class);
+            		
+            		method.invoke(crit, Critter.getInstances(className));
             	}
             	else {
             		System.out.println("invalid command: " + inputString);

@@ -146,9 +146,9 @@ public abstract class Critter {
 	 */
 	public static void makeCritter(String critter_class_name) throws InvalidCritterException {
 		try {
-			Class c = Class.forName(critter_class_name); 
+			Class critterClass = Class.forName(critter_class_name); 
 			
-			Critter newCritter = (Critter) c.newInstance();
+			Critter newCritter = (Critter) critterClass.newInstance();
 			
 			newCritter.x_coord = getRandomInt(Params.world_width);
 					
@@ -174,12 +174,12 @@ public abstract class Critter {
 	public static List<Critter> getInstances(String critter_class_name) throws InvalidCritterException {
 		List<Critter> result = new java.util.ArrayList<Critter>();
 		try {
-			Class c = Class.forName(critter_class_name);
+			Class critterClass = Class.forName(critter_class_name);
 			
-			Critter testCritter = (Critter) c.newInstance();
+			Critter testCritter = (Critter) critterClass.newInstance();
 			
 			for(Critter currentCritter : population) {
-				if(testCritter.toString().equals(currentCritter.toString())) {
+				if(testCritter.getClass().isInstance(currentCritter)) {
 					result.add(currentCritter);
 				}
 			}
@@ -271,7 +271,8 @@ public abstract class Critter {
 	 * Clear the world of all critters, dead and alive
 	 */
 	public static void clearWorld() {
-		// Complete this method.
+		population.clear();
+		babies.clear();
 	}
 	
 	/**
@@ -406,5 +407,54 @@ public abstract class Critter {
 		System.out.println("+");
 		
 
+	}
+	
+	protected final int runAwaySpaceAvailable() {
+		int directionAvailable = -1;
+		int[] directionsNotAllowed = {-1, -1, -1, -1, -1, -1, -1, -1};
+		int directionIndex = 0;
+		
+		for(int i = 0; i < population.size() ; i++) {
+			Critter testCritter = population.get(i);
+			if((testCritter.x_coord == x_coord + 1) && (testCritter.y_coord == y_coord)) {
+				directionsNotAllowed[0] = 0;
+			}
+			
+			if((testCritter.x_coord == x_coord + 1) && (testCritter.y_coord == y_coord - 1)) {
+				directionsNotAllowed[1] = 1;
+			}
+			
+			if((testCritter.x_coord == x_coord) && (testCritter.y_coord == y_coord - 1)) {
+				directionsNotAllowed[2] = 2;
+			}
+			
+			if((testCritter.x_coord == x_coord - 1) && (testCritter.y_coord == y_coord - 1)) {
+				directionsNotAllowed[3] = 3;
+			}
+			
+			if((testCritter.x_coord == x_coord - 1) && (testCritter.y_coord == y_coord)) {
+				directionsNotAllowed[4] = 4;
+			}
+			
+			if((testCritter.x_coord == x_coord - 1) && (testCritter.y_coord == y_coord + 1)) {
+				directionsNotAllowed[5] = 5;
+			}
+			
+			if((testCritter.x_coord == x_coord) && (testCritter.y_coord == y_coord + 1)) {
+				directionsNotAllowed[6] = 6;
+			}
+			
+			if((testCritter.x_coord == x_coord + 1) && (testCritter.y_coord == y_coord + 1)) {
+				directionsNotAllowed[7] = 7;
+			}
+		}
+		
+		for(int i = 0; i < 8; i++) {
+			if(directionsNotAllowed[i] == -1) {
+				directionAvailable = i;
+			}
+		}
+		
+		return directionAvailable;
 	}
 }
