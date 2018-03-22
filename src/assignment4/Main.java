@@ -74,20 +74,6 @@ public class Main {
         
         // System.out.println("GLHF");
         
-        /* Write your code above */
-        
-        try{
-        	for(int i = 0 ; i < 100 ; i++) {
-        		Critter.makeCritter("assignment4.Algae");
-        	}
-        	for(int i = 0 ; i < 25 ; i++) {
-        		Critter.makeCritter("assignment4.Craig");
-        	}
-        }
-        catch(InvalidCritterException ice) {
-        	System.out.println(ice);
-        }
-        
         boolean quitInput = false;
         String[] inputs;
         String inputString = "";
@@ -154,8 +140,13 @@ public class Main {
             			throw new Exception();
             		}
             		
-            		if(inputs.length >= 2) {
-            			className = myPackage + "." + inputs[1];
+            		if(inputs.length >= 2) {	
+            			if((inputs[1].charAt(0) >= 'a') && inputs[1].charAt(0) <= 'z'){
+                			className = ((char)(inputs[1].charAt(0) + 'A' - 'a')) + inputs[1].substring(1);
+                		}
+                		else {
+                			className = inputs[1];
+                		}
             		}
             		
             		if(inputs.length == 3) {
@@ -175,9 +166,14 @@ public class Main {
             			throw new Exception();
             		}
             		
-            		className = myPackage + "." + inputs[1];
+            		if((inputs[1].charAt(0) >= 'a') && inputs[1].charAt(0) <= 'z'){
+            			className = ((char)(inputs[1].charAt(0) + 'A' - 'a')) + inputs[1].substring(1);
+            		}
+            		else {
+            			className = inputs[1];
+            		}
             		
-            		Class<?> critterClass = Class.forName(className);
+            		Class<?> critterClass = Class.forName(myPackage + "." + className);
             		
             		Critter crit = (Critter) critterClass.newInstance();
             		
@@ -192,11 +188,32 @@ public class Main {
         	catch(Exception e) {
         		System.out.println("error processing: " + inputString);
         	}
+        	catch(Error er) {
+        		System.out.println("error processing: " + inputString);
+        	}
         	
         }
         
-        Critter.displayWorld();
+      
         
+        
+        /* Write your code above */
+        
+        /*
+        try{
+        	
+        	for(int i = 0 ; i < 100 ; i++) {
+        		Critter.makeCritter("assignment4.Algae");
+        	}
+        	for(int i = 0 ; i < 25 ; i++) {
+        		Critter.makeCritter("assignment4.Craig");
+        	}
+        }
+        catch(InvalidCritterException ice) {
+        	System.out.println(ice);
+        }
+        */
+
         System.out.flush();
 
     }

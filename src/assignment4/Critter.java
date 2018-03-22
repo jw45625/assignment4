@@ -50,12 +50,23 @@ public abstract class Critter {
 	private int x_coord;
 	private int y_coord;
 	
+	/**
+	 * boolean value to check if this Critter moved this step
+	 */
 	private boolean moveAttempted;
 	
+	/**
+	 * will try to walk in the direction given
+	 * @param direction is from 0 to 7 which indicates the direction the Critter will move
+	 */
 	protected final void walk(int direction) {
 		move(direction, 1, Params.walk_energy_cost);
 	}
 	
+	/**
+	 * will try to walk in the direction given
+	 * @param direction is from 0 to 7 which indicates the direction the Critter will move
+	 */
 	protected final void run(int direction) {
 		move(direction, 2, Params.run_energy_cost);
 	}
@@ -75,24 +86,24 @@ public abstract class Critter {
 			
 			if(direction == 1) {
 				x_coord = (x_coord + speed) % Params.world_width;
-				y_coord = (y_coord + Params.world_width - speed) % Params.world_width;
+				y_coord = ((y_coord + Params.world_height) - speed) % Params.world_height;
 			}
 			
 			if(direction == 2) {
-				y_coord = (y_coord + Params.world_width - speed) % Params.world_width;
+				y_coord = ((y_coord + Params.world_height) - speed) % Params.world_height;
 			}
 			
 			if(direction == 3) {
-				x_coord = (x_coord + Params.world_width - speed) % Params.world_width;
-				y_coord = (y_coord + Params.world_width - speed) % Params.world_width;
+				x_coord = ((x_coord + Params.world_width) - speed) % Params.world_width;
+				y_coord = ((y_coord + Params.world_height) - speed) % Params.world_height;
 			}
 			
 			if(direction == 4) {
-				x_coord = (x_coord + Params.world_width - speed) % Params.world_width;
+				x_coord = ((x_coord + Params.world_width) - speed) % Params.world_width;
 			}
 			
 			if(direction == 5) {
-				x_coord = (x_coord + Params.world_width - speed) % Params.world_width;
+				x_coord = ((x_coord + Params.world_width) - speed) % Params.world_width;
 				y_coord = (y_coord + speed) % Params.world_height;
 			}
 			
@@ -141,12 +152,12 @@ public abstract class Critter {
 	 * (Java weirdness: Exception throwing does not work properly if the parameter has lower-case instead of
 	 * upper. For example, if craig is supplied instead of Craig, an error is thrown instead of
 	 * an Exception.)
-	 * @param critter_class_name
-	 * @throws InvalidCritterException
+	 * @param critter_class_name is the String with the name of the Critter
+	 * @throws InvalidCritterException is thrown if there in no Crtter with the give name
 	 */
 	public static void makeCritter(String critter_class_name) throws InvalidCritterException {
 		try {
-			Class critterClass = Class.forName(critter_class_name); 
+			Class critterClass = Class.forName(myPackage + "." + critter_class_name); 
 			
 			Critter newCritter = (Critter) critterClass.newInstance();
 			
@@ -168,13 +179,13 @@ public abstract class Critter {
 	/**
 	 * Gets a list of critters of a specific type.
 	 * @param critter_class_name What kind of Critter is to be listed.  Unqualified class name.
-	 * @return List of Critters.
-	 * @throws InvalidCritterException
+	 * @return results with is a List of Critters.
+	 * @throws InvalidCritterException is the given critter name is not a available Critter
 	 */
 	public static List<Critter> getInstances(String critter_class_name) throws InvalidCritterException {
 		List<Critter> result = new java.util.ArrayList<Critter>();
 		try {
-			Class critterClass = Class.forName(critter_class_name);
+			Class critterClass = Class.forName(myPackage + "." + critter_class_name);
 			
 			Critter testCritter = (Critter) critterClass.newInstance();
 			
@@ -193,7 +204,7 @@ public abstract class Critter {
 	
 	/**
 	 * Prints out how many Critters of each type there are on the board.
-	 * @param critters List of Critters.
+	 * @param critters is a List of Critters.
 	 */
 	public static void runStats(List<Critter> critters) {
 		System.out.print("" + critters.size() + " critters as follows -- ");
@@ -320,18 +331,19 @@ public abstract class Critter {
 						critterTwoRoll = 0;
 					}
 					
-					
-					if(critterOneRoll >= critterTwoRoll) {
-						//System.out.print(critterOne + "starting energy" + critterOne.energy);
-						critterOne.energy = critterOne.energy + (critterTwo.energy / 2);
-						critterTwo.energy = 0;
-						//System.out.println(critterOne + "beats" + critterTwo + "new energy" + critterOne.energy);
-					}
-					else {
-						//System.out.print(critterTwo + "starting energy" + critterTwo.energy);
-						critterTwo.energy = critterTwo.energy + (critterOne.energy / 2);
-						critterOne.energy = 0;
-						//System.out.println(critterTwo + "beats" + critterOne + "new energy" + critterTwo.energy);
+					if((critterOne.x_coord == critterTwo.x_coord) && (critterOne.y_coord == critterTwo.y_coord)) { //checks if a critter ran away
+						if(critterOneRoll >= critterTwoRoll) {
+							//System.out.print(critterOne + "starting energy" + critterOne.energy);
+							critterOne.energy = critterOne.energy + (critterTwo.energy / 2);
+							critterTwo.energy = 0;
+							//System.out.println(critterOne + "beats" + critterTwo + "new energy" + critterOne.energy);
+						}
+						else {
+							//System.out.print(critterTwo + "starting energy" + critterTwo.energy);
+							critterTwo.energy = critterTwo.energy + (critterOne.energy / 2);
+							critterOne.energy = 0;
+							//System.out.println(critterTwo + "beats" + critterOne + "new energy" + critterTwo.energy);
+						}
 					}
 				}
 				
@@ -341,7 +353,7 @@ public abstract class Critter {
 		//loop to create more algae
 		for(int i = 0 ; i < Params.refresh_algae_count ; i++) {
 			try{
-				makeCritter(myPackage + ".Algae");
+				makeCritter("Algae");
 			}
 			catch(InvalidCritterException ice){
 				System.out.println(ice);
@@ -409,6 +421,10 @@ public abstract class Critter {
 
 	}
 	
+	/**
+	 * checks the Critter's surroundings to see if there a space to run away to.
+	 * @return direction which is an available direction
+	 */
 	protected final int runAwaySpaceAvailable() {
 		int directionAvailable = -1;
 		int[] directionsNotAllowed = {-1, -1, -1, -1, -1, -1, -1, -1};
