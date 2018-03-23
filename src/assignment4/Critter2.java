@@ -43,7 +43,6 @@ public class Critter2 extends Critter {
 			direction = runAwaySpaceAvailable();
 			if(direction != -1) {
 				walk(direction);
-				System.out.println("Critter2 ran away");
 			}
 		}
 		

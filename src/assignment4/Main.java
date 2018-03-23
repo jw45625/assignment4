@@ -183,9 +183,11 @@ public class Main {
         	}
         	catch(Exception e) {
         		System.out.println("error processing: " + inputString);
+        		//System.out.println(e);
         	}
         	catch(Error er) {
         		System.out.println("error processing: " + inputString);
+        		//System.out.println(er);
         	}
         	
         }
