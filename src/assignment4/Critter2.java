@@ -1,5 +1,14 @@
 package assignment4;
 
+/* CRITTERS Critter2.java
+ * EE422C Project 4 submission by
+ * Replace <...> with your actual data.
+ * Jonathan Wu
+ * jw45625
+ * 15465
+ * Fall 2016
+ */
+
 import java.util.*;
 
 /**
