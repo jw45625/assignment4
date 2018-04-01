@@ -21,7 +21,8 @@ public abstract class Critter {
 	private static String myPackage;
 	private	static List<Critter> population = new java.util.ArrayList<Critter>();
 	private static List<Critter> babies = new java.util.ArrayList<Critter>();
-
+	private static View viewer = new View();
+	
 	// Gets the package name.  This assumes that Critter and its subclasses are all in the same package.
 	static {
 		myPackage = Critter.class.getPackage().toString().split(" ")[1];
@@ -56,7 +57,7 @@ public abstract class Critter {
 	 * @param direction is from 0 to 7 which indicates the direction the Critter will move
 	 */
 	protected final void walk(int direction) {
-		move(direction, 1, Params.walk_energy_cost);
+		move(direction, 1, Params.run_energy_cost);
 	}
 	
 	/**
@@ -74,48 +75,75 @@ public abstract class Critter {
 	 * @param speed is the how many spaces in that direction the Critter will go
 	 * @param energyCost is the cost of energy of this movement
 	 */
-	private final void move(int direction, int speed, int energyCost) {
-		if(moveAttempted == false) {
-			if(direction == 0) {
-				x_coord = (x_coord + speed) % Params.world_width;
-			}
-			
-			if(direction == 1) {
-				x_coord = (x_coord + speed) % Params.world_width;
-				y_coord = ((y_coord + Params.world_height) - speed) % Params.world_height;
-			}
-			
-			if(direction == 2) {
-				y_coord = ((y_coord + Params.world_height) - speed) % Params.world_height;
-			}
-			
-			if(direction == 3) {
-				x_coord = ((x_coord + Params.world_width) - speed) % Params.world_width;
-				y_coord = ((y_coord + Params.world_height) - speed) % Params.world_height;
-			}
-			
-			if(direction == 4) {
-				x_coord = ((x_coord + Params.world_width) - speed) % Params.world_width;
-			}
-			
-			if(direction == 5) {
-				x_coord = ((x_coord + Params.world_width) - speed) % Params.world_width;
-				y_coord = (y_coord + speed) % Params.world_height;
-			}
-			
-			if(direction == 6) {
-				y_coord = (y_coord + speed) % Params.world_height;
-			}
-			
-			if(direction == 7) {
-				x_coord = (x_coord + speed) % Params.world_width;
-				y_coord = (y_coord + speed) % Params.world_height;
-			}
+	private void move(int direction, int speed, int energyCost) {
+		Integer dx = 0;
+		Integer dy = 0;
+		getDistanceMoved(direction, speed, dx, dy);
+		if(dx.intValue() > 0) {
+			x_coord = (x_coord + dx.intValue()) % Params.world_width;
+		}
+		else {
+			x_coord = ((x_coord + Params.world_width) + dx.intValue()) % Params.world_width;
+		}
+		
+		if(dy.intValue() > 0) {
+			y_coord = (y_coord + dx.intValue()) % Params.world_height;
+		}
+		else {
+			y_coord = ((y_coord + Params.world_height) + dy.intValue()) % Params.world_height;
+		}
+		
+		if(!moveAttempted) {
+			energy = energy - energyCost;
 			
 			moveAttempted = true;
 		}
-
-		energy = energy - energyCost;
+	}
+	
+	/**
+	 * get the change position for the cell in the given direction
+	 * @param direction is the direction of the movement. From 0 to 7. 0 is going right. 1 is going right and up. 2 is going up. 
+	 * As direction increases, the actual direction of the movement changes counterclockwise
+	 * @param speed is the how many spaces in that direction the Critter will go
+	 * @param dx is the Integer Object containing the change in the x direction
+	 * @param dy is t the Integer Object containing the change in the y direction
+	 */
+	private void getDistanceMoved(int direction, int speed, Integer dx, Integer dy) {
+		if(direction == 0) {
+			dx = speed;
+		}
+		
+		if(direction == 1) {
+			dx = speed;
+			dy = -1 * speed;
+		}
+		
+		if(direction == 2) {
+			dy = -1 * speed;
+		}
+		
+		if(direction == 3) {
+			dx = -1 * speed;
+			dy = -1 * speed;
+		}
+		
+		if(direction == 4) {
+			dx = -1 * speed;
+		}
+		
+		if(direction == 5) {
+			dx = -1 * speed;
+			dy = speed;
+		}
+		
+		if(direction == 6) {
+			dy = speed;
+		}
+		
+		if(direction == 7) {
+			dx = speed;
+			dy = speed;
+		}
 	}
 	
 	/**
@@ -203,6 +231,7 @@ public abstract class Critter {
 	 * @param critters is a List of Critters.
 	 */
 	public static void runStats(List<Critter> critters) {
+		/*
 		System.out.print("" + critters.size() + " critters as follows -- ");
 		java.util.Map<String, Integer> critter_count = new java.util.HashMap<String, Integer>();
 		for (Critter crit : critters) {
@@ -220,6 +249,30 @@ public abstract class Critter {
 			prefix = ", ";
 		}
 		System.out.println();		
+		*/
+		///*
+		String statsInfo = "";
+		
+		statsInfo = statsInfo.concat("" + critters.size() + " critters as follows -- " + "\n");
+		java.util.Map<String, Integer> critter_count = new java.util.HashMap<String, Integer>();
+		for (Critter crit : critters) {
+			String crit_string = crit.toString();
+			Integer old_count = critter_count.get(crit_string);
+			if (old_count == null) {
+				critter_count.put(crit_string,  1);
+			} else {
+				critter_count.put(crit_string, old_count.intValue() + 1);
+			}
+		}
+		String prefix = "";
+		for (String s : critter_count.keySet()) {
+			statsInfo = statsInfo.concat(prefix + s + ":" + critter_count.get(s));
+			prefix = ", ";
+		}
+		
+		statsInfo = statsInfo.concat("\n");
+		viewer.viewRunStats(statsInfo);
+		//*/
 	}
 	
 	/* the TestCritter class allows some critters to "cheat". If you want to 
@@ -294,57 +347,68 @@ public abstract class Critter {
 		int critterTwoRoll = 0;
 		
 		//loop for doTimeStep for each Critter
-		for(int i = 0 ; i < population.size() ; i++) {
-			critterOne = population.get(i);
-			critterOne.doTimeStep();
-			critterOne.energy = critterOne.energy - Params.rest_energy_cost;
-			if(critterOne.energy <= 0) {
-				population.remove(critterOne);
-				i--;
+		try {
+			for(int i = 0 ; i < population.size() ; i++) {
+				critterOne = population.get(i);
+				critterOne.doTimeStep();
+				critterOne.energy = critterOne.energy - Params.rest_energy_cost;
+				if(critterOne.energy <= 0) {
+					population.remove(critterOne);
+					i--;
+				}
 			}
+		}
+		catch(Error e) {
+			System.out.println("1");
 		}
 		
-		//loop for encounters
-		for(int i = 0 ; i < population.size(); i++) {
-			critterOne = population.get(i);
-			for(int j = i + 1 ; j < population.size() ; j++) {
-				critterTwo = population.get(j);
-				if((critterOne.x_coord == critterTwo.x_coord) && (critterOne.y_coord == critterTwo.y_coord)) {
-					critterOneEngages = critterOne.fight(critterTwo.toString());
-					critterTwoEngages = critterTwo.fight(critterOne.toString());
-					
-					if(critterOneEngages == true) {
-						critterOneRoll = getRandomInt(critterOne.energy + 1);
-					}
-					else {
-						critterOneRoll = 0;
-					}
-					
-					if(critterTwoEngages == true) {
-						critterTwoRoll = getRandomInt(critterTwo.energy + 1);
-					}
-					else {
-						critterTwoRoll = 0;
-					}
-					
-					if((critterOne.x_coord == critterTwo.x_coord) && (critterOne.y_coord == critterTwo.y_coord)) { //checks if a critter ran away
-						if(critterOneRoll >= critterTwoRoll) {
-							//System.out.print(critterOne + "starting energy" + critterOne.energy);
-							critterOne.energy = critterOne.energy + (critterTwo.energy / 2);
-							critterTwo.energy = 0;
-							//System.out.println(critterOne + "beats" + critterTwo + "new energy" + critterOne.energy);
+		try {
+			//loop for encounters
+			for(int i = 0 ; i < population.size(); i++) {
+				critterOne = population.get(i);
+				for(int j = i + 1 ; j < population.size() ; j++) {
+					critterTwo = population.get(j);
+					if((critterOne.x_coord == critterTwo.x_coord) && (critterOne.y_coord == critterTwo.y_coord)) {
+						critterOneEngages = critterOne.fight(critterTwo.toString());
+						critterTwoEngages = critterTwo.fight(critterOne.toString());
+						
+						if(critterOneEngages == true) {
+							critterOneRoll = getRandomInt(critterOne.energy + 1);
 						}
 						else {
-							//System.out.print(critterTwo + "starting energy" + critterTwo.energy);
-							critterTwo.energy = critterTwo.energy + (critterOne.energy / 2);
-							critterOne.energy = 0;
-							//System.out.println(critterTwo + "beats" + critterOne + "new energy" + critterTwo.energy);
+							critterOneRoll = 0;
+						}
+						
+						if(critterTwoEngages == true) {
+							critterTwoRoll = getRandomInt(critterTwo.energy + 1);
+						}
+						else {
+							critterTwoRoll = 0;
+						}
+						
+						if((critterOne.x_coord == critterTwo.x_coord) && (critterOne.y_coord == critterTwo.y_coord)) { //checks if a critter ran away
+							if(critterOneRoll >= critterTwoRoll) {
+								//System.out.print(critterOne + "starting energy" + critterOne.energy);
+								critterOne.energy = critterOne.energy + (critterTwo.energy / 2);
+								critterTwo.energy = 0;
+								//System.out.println(critterOne + "beats" + critterTwo + "new energy" + critterOne.energy);
+							}
+							else {
+								//System.out.print(critterTwo + "starting energy" + critterTwo.energy);
+								critterTwo.energy = critterTwo.energy + (critterOne.energy / 2);
+								critterOne.energy = 0;
+								//System.out.println(critterTwo + "beats" + critterOne + "new energy" + critterTwo.energy);
+							}
 						}
 					}
+					
 				}
-				
 			}
 		}
+		catch(Error e) {
+			System.out.println("2");
+		}
+		
 		
 		//loop to create more algae
 		for(int i = 0 ; i < Params.refresh_algae_count ; i++) {
@@ -364,7 +428,7 @@ public abstract class Critter {
 		
 		for(int i = 0 ; i < population.size() ; i++) {
 			critterOne = population.get(i);
-			if(critterOne.energy == 0) {
+			if(critterOne.energy <= 0) {
 				population.remove(critterOne);
 				i--;
 			}
@@ -379,6 +443,7 @@ public abstract class Critter {
 	 * 
 	 */
 	public static void displayWorld() {
+		/*
 		System.out.print("+");
 		
 		for(int j = 0 ; j < Params.world_width ; j++) {
@@ -413,8 +478,19 @@ public abstract class Critter {
 		}
 		
 		System.out.println("+");
+		*/
 		
-
+		viewer.paintGridLines();
+		
+		for(int i = 0 ; i < Params.world_height ; i++) {
+			for(int j = 0 ; j < Params.world_width ; j++) {
+				for(Critter c : population) {
+					if((c.x_coord == j) && (c.y_coord == i)) {
+						System.out.print(c);
+					}
+				}
+			}
+		}
 	}
 	
 	/**
@@ -440,15 +516,15 @@ public abstract class Critter {
 				directionsNotAllowed[2] = 2;
 			}
 			
-			if((testCritter.x_coord == x_coord - 1) && (testCritter.y_coord == y_coord - 1)) {
+			if((testCritter.x_coord == ((x_coord + Params.world_width) - 1) % Params.world_width) && (testCritter.y_coord == y_coord - 1)) {
 				directionsNotAllowed[3] = 3;
 			}
 			
-			if((testCritter.x_coord == x_coord - 1) && (testCritter.y_coord == y_coord)) {
+			if((testCritter.x_coord == ((x_coord + Params.world_width) - 1) % Params.world_width) && (testCritter.y_coord == y_coord)) {
 				directionsNotAllowed[4] = 4;
 			}
 			
-			if((testCritter.x_coord == x_coord - 1) && (testCritter.y_coord == y_coord + 1)) {
+			if((testCritter.x_coord == ((x_coord + Params.world_width) - 1) % Params.world_width) && (testCritter.y_coord == y_coord + 1)) {
 				directionsNotAllowed[5] = 5;
 			}
 			

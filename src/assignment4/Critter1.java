@@ -44,7 +44,7 @@ public class Critter1 extends Critter {
 			return true;
 		}
 		else {
-			direction = runAwaySpaceAvailable();
+			direction = -1;
 			if(direction != -1) {
 				walk(direction);
 			}
