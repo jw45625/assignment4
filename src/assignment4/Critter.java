@@ -10,6 +10,7 @@ package assignment4;
 
 
 import java.util.List;
+import javafx.scene.shape.*;
 
 /* see the PDF for descriptions of the methods and fields in this class
  * you may add fields, methods or inner classes to Critter ONLY if you make your additions private
@@ -18,6 +19,35 @@ import java.util.List;
 
 
 public abstract class Critter {
+	/* NEW FOR PROJECT 5 */
+	public enum CritterShape {
+		CIRCLE,
+		SQUARE,
+		TRIANGLE,
+		DIAMOND,
+		STAR
+	}
+	
+	/* the default color is white, which I hope makes critters invisible by default
+	 * If you change the background color of your View component, then update the default
+	 * color to be the same as you background 
+	 * 
+	 * critters must override at least one of the following three methods, it is not 
+	 * proper for critters to remain invisible in the view
+	 * 
+	 * If a critter only overrides the outline color, then it will look like a non-filled 
+	 * shape, at least, that's the intent. You can edit these default methods however you 
+	 * need to, but please preserve that intent as you implement them. 
+	 */
+	public javafx.scene.paint.Color viewColor() { 
+		return javafx.scene.paint.Color.WHITE; 
+	}
+	
+	public javafx.scene.paint.Color viewOutlineColor() { return viewColor(); }
+	public javafx.scene.paint.Color viewFillColor() { return viewColor(); }
+	
+	public abstract CritterShape viewShape(); 
+	
 	private static String myPackage;
 	private	static List<Critter> population = new java.util.ArrayList<Critter>();
 	private static List<Critter> babies = new java.util.ArrayList<Critter>();
@@ -76,23 +106,25 @@ public abstract class Critter {
 	 * @param energyCost is the cost of energy of this movement
 	 */
 	private void move(int direction, int speed, int energyCost) {
-		Integer dx = 0;
-		Integer dy = 0;
-		getDistanceMoved(direction, speed, dx, dy);
-		if(dx.intValue() > 0) {
-			x_coord = (x_coord + dx.intValue()) % Params.world_width;
+		int dx;
+		int dy;
+		int []distanceMoved;
+		distanceMoved = getDistanceMoved(direction, speed);
+		dx = distanceMoved[0];
+		dy = distanceMoved[1];
+		if(dx > 0) {
+			x_coord = (x_coord + dx) % Params.world_width;
 		}
-		else {
-			x_coord = ((x_coord + Params.world_width) + dx.intValue()) % Params.world_width;
-		}
-		
-		if(dy.intValue() > 0) {
-			y_coord = (y_coord + dx.intValue()) % Params.world_height;
-		}
-		else {
-			y_coord = ((y_coord + Params.world_height) + dy.intValue()) % Params.world_height;
+		else if(dx < 0){
+			x_coord = ((x_coord + Params.world_width) + dx) % Params.world_width;
 		}
 		
+		if(dy > 0) {
+			y_coord = (y_coord + dy) % Params.world_height;
+		}
+		else if(dy < 0) {
+			y_coord = ((y_coord + Params.world_height) + dy) % Params.world_height;
+		}
 		if(!moveAttempted) {
 			energy = energy - energyCost;
 			
@@ -105,45 +137,51 @@ public abstract class Critter {
 	 * @param direction is the direction of the movement. From 0 to 7. 0 is going right. 1 is going right and up. 2 is going up. 
 	 * As direction increases, the actual direction of the movement changes counterclockwise
 	 * @param speed is the how many spaces in that direction the Critter will go
-	 * @param dx is the Integer Object containing the change in the x direction
-	 * @param dy is t the Integer Object containing the change in the y direction
 	 */
-	private void getDistanceMoved(int direction, int speed, Integer dx, Integer dy) {
+	private int[] getDistanceMoved(int direction, int speed) {
+		int dx = 0;
+		int dy = 0;
+		int[] distanceMoved = new int[2];
 		if(direction == 0) {
-			dx = speed;
+			dx = new Integer(speed);
 		}
 		
 		if(direction == 1) {
-			dx = speed;
-			dy = -1 * speed;
+			dx = new Integer(speed);
+			dy = new Integer(-1 * speed);
 		}
 		
 		if(direction == 2) {
-			dy = -1 * speed;
+			dy = new Integer(-1 * speed);
 		}
 		
 		if(direction == 3) {
-			dx = -1 * speed;
-			dy = -1 * speed;
+			dx = new Integer(-1 * speed);
+			dy = new Integer(-1 * speed);
 		}
 		
 		if(direction == 4) {
-			dx = -1 * speed;
+			dx = new Integer(-1 * speed);
 		}
 		
 		if(direction == 5) {
-			dx = -1 * speed;
-			dy = speed;
+			dx = new Integer(-1 * speed);
+			dy = new Integer(speed);
 		}
 		
 		if(direction == 6) {
-			dy = speed;
+			dy = new Integer(speed);
 		}
 		
 		if(direction == 7) {
-			dx = speed;
-			dy = speed;
+			dx = new Integer(speed);
+			dy = new Integer(speed);
 		}
+		
+		distanceMoved[0] = dx;
+		distanceMoved[1] = dy;
+		
+		return distanceMoved;
 	}
 	
 	/**
@@ -230,7 +268,7 @@ public abstract class Critter {
 	 * Prints out how many Critters of each type there are on the board.
 	 * @param critters is a List of Critters.
 	 */
-	public static void runStats(List<Critter> critters) {
+	public static String runStats(List<Critter> critters) {
 		/*
 		System.out.print("" + critters.size() + " critters as follows -- ");
 		java.util.Map<String, Integer> critter_count = new java.util.HashMap<String, Integer>();
@@ -271,7 +309,8 @@ public abstract class Critter {
 		}
 		
 		statsInfo = statsInfo.concat("\n");
-		viewer.viewRunStats(statsInfo);
+		
+		return statsInfo;
 		//*/
 	}
 	
@@ -479,18 +518,80 @@ public abstract class Critter {
 		
 		System.out.println("+");
 		*/
+		viewer.clearGrid();
 		
 		viewer.paintGridLines();
 		
+		
 		for(int i = 0 ; i < Params.world_height ; i++) {
 			for(int j = 0 ; j < Params.world_width ; j++) {
-				for(Critter c : population) {
-					if((c.x_coord == j) && (c.y_coord == i)) {
-						System.out.print(c);
+				for(Critter crit : population) {
+					if((crit.x_coord == j) && (crit.y_coord == i)) {
+						int index = -1;
+						Shape s;
+						switch(crit.viewShape()) {
+							case CIRCLE: 	index = 0;
+										 	break;
+							case SQUARE: 	index = 1;
+										 	break;
+							case TRIANGLE: 	index = 2;
+										   	break;
+							case DIAMOND: 	index = 3;
+										  	break;
+							case STAR: 		index = 4;
+											break;
+						}
+						viewer.paintShape(index, j, i, crit.viewColor(), crit.viewOutlineColor());
 					}
 				}
 			}
 		}
+	}
+	
+	
+	
+	/**
+	 * look in the cell in the given direction and give steps contains a Critter
+	 * @param direction is the direction of the movement. From 0 to 7. 0 is going right. 1 is going right and up. 2 is going up. 
+	 * As direction increases, the actual direction of the movement changes counterclockwise
+	 * @param steps is true for two step and false for single steps
+	 * @return the Critter string of the the Critter of the cell or null is it is empty
+	 */
+	protected final String look(int direction, boolean steps) {
+		int speed = 0;
+		int compare_x = 0;
+		int compare_y = 0;
+		
+		if(steps) {
+			speed = 1;
+		}
+
+		int[] distanceMoved = getDistanceMoved(direction, speed);
+		
+		int dx = distanceMoved[0];
+		int dy = distanceMoved[1];
+		
+		if(dx > 0) {
+			compare_x = (compare_x + dx) % Params.world_width;
+		}
+		else if(dx < 0){
+			compare_x = ((compare_x + Params.world_width) + dx) % Params.world_width;
+		}
+		
+		if(dy > 0) {
+			compare_y = (compare_y + dy) % Params.world_height;
+		}
+		else if(dy < 0){
+			compare_y = ((compare_y + Params.world_height) + dy) % Params.world_height;
+		}
+		
+		for(Critter crit : population) {
+			if((crit.x_coord == compare_x) && (crit.y_coord == compare_y)) {
+				return crit.toString();
+			}
+		}
+		
+		return "null";
 	}
 	
 	/**

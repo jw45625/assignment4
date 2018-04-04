@@ -1,11 +1,5 @@
 package assignment4;
 
-import java.util.List;
-
-/*
- * Example critter
- * Do not change or submit this file.
- */
 public class Craig extends Critter {
 	
 	@Override
@@ -56,8 +50,8 @@ public class Craig extends Critter {
 		dir = (dir + turn) % 8;
 	}
 
-	//@Override
-	public static void runStats(List<Critter> craigs) {
+	public static String runStats(java.util.List<Critter> craigs) {
+		String statsInfo = "";
 		int total_straight = 0;
 		int total_left = 0;
 		int total_right = 0;
@@ -69,11 +63,20 @@ public class Craig extends Critter {
 			total_back += c.genes[4];
 			total_left += c.genes[5] + c.genes[6] + c.genes[7];
 		}
-		System.out.print("" + craigs.size() + " total Craigs    ");
-		System.out.print("" + total_straight / (GENE_TOTAL * 0.01 * craigs.size()) + "% straight   ");
-		System.out.print("" + total_back / (GENE_TOTAL * 0.01 * craigs.size()) + "% back   ");
-		System.out.print("" + total_right / (GENE_TOTAL * 0.01 * craigs.size()) + "% right   ");
-		System.out.print("" + total_left / (GENE_TOTAL * 0.01 * craigs.size()) + "% left   ");
-		System.out.println();
+		statsInfo = statsInfo.concat("" + craigs.size() + " total Craigs    ");
+		statsInfo = statsInfo.concat("" + total_straight / (GENE_TOTAL * 0.01 * craigs.size()) + "% straight   ");
+		statsInfo = statsInfo.concat("" + total_back / (GENE_TOTAL * 0.01 * craigs.size()) + "% back   ");
+		statsInfo = statsInfo.concat("" + total_right / (GENE_TOTAL * 0.01 * craigs.size()) + "% right   ");
+		statsInfo = statsInfo.concat("" + total_left / (GENE_TOTAL * 0.01 * craigs.size()) + "% left   ");
+		statsInfo = statsInfo.concat("\n");
+		
+		return statsInfo;
 	}
+	
+	@Override
+	public CritterShape viewShape() { return CritterShape.SQUARE; }
+
+	@Override
+	public javafx.scene.paint.Color viewOutlineColor() { return javafx.scene.paint.Color.BLUE; }
+
 }

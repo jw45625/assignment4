@@ -34,11 +34,11 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.paint.*;
 import javafx.scene.shape.*;
 import javafx.scene.control.TextField;
+import javafx.scene.shape.Polygon.*;
 
 public class View extends Application{
-	private int size; 
+	private double size; 
 	private GridPane grid;
-	private TextField statsOutput;
 	
 	@Override
 	public void start(Stage primaryStage) { // primaryStage is created by Java VM
@@ -46,25 +46,22 @@ public class View extends Application{
 	}
 	public View() {
 		grid = new GridPane();
-		statsOutput = new TextField();
-		statsOutput.setPrefSize(300, 100);
 		FlowPane viewRootPane = new FlowPane();
-		statsOutput.setText("0");
 		
 		
 		if(Params.world_height > 100) {
 			size = 8;
 		}
 		else {
-			size = 800 / Params.world_height;
+			size = (double) 800 / Params.world_height;
 		}
 		
 		Stage viewStage = new Stage();
-		viewRootPane.getChildren().addAll(grid, statsOutput);
+		viewRootPane.getChildren().addAll(grid);
 	    Scene viewScene = new Scene(viewRootPane, 1600, 1000);
 	     
 	    viewStage.setScene(viewScene);
-	    viewStage.setTitle("PooP");
+	    viewStage.setTitle("Critter World");
 	    viewStage.show();
 	}
 	
@@ -79,33 +76,53 @@ public class View extends Application{
 
 	}
 	
-	public void viewRunStats(String statsInfo) {
-		System.out.println(statsInfo);
-		statsOutput.setText(statsInfo);
+	public void clearGrid() {
+		grid.getChildren().clear();
 	}
 	
-	/*
-	public void display() {
-		for(int i = 0 ; i < Params.world_height ; i++) {
-			System.out.print("|");
-			
-			for(int j = 0 ; j < Params.world_width ; j++) {
-				boolean displayedCritter = false;
-				for(Critter c : population) {
-					if((c.x_coord == j) && (c.y_coord == i) && (displayedCritter == false)) {
-						displayedCritter = true;
-						System.out.print(c);
-					}
-				}
-				if(displayedCritter == false) {
-					System.out.print(" ");
-				}
-			}
-			
-			System.out.println("|");
+	public void paintShape(int index, int x, int y, Color fillColor, Color strokeColor) {
+		switch(index) {
+			case 0: Shape s0 = new Circle(size/2);
+					s0.setFill(fillColor);
+					grid.add(s0, x, y);
+					break;
+			case 1: Shape s1 = new Rectangle(size, size);
+					s1.setFill(fillColor);
+					grid.add(s1, x, y);
+					break;
+			case 2:	Polygon s2 = new Polygon();
+					s2.getPoints().addAll(new Double[]{
+							0.0, 0.0, 
+							size/2 , size,
+							size, 0.0
+							});
+					s2.setFill(fillColor);
+					grid.add(s2, x, y);
+					break;
+			case 3:	Polygon s3 = new Polygon();
+					s3.getPoints().addAll(new Double[]{
+							size/2, 0.0, 
+							size , size/2,
+							size/2 , size,
+							0.0, size/2
+							});
+							s3.setFill(fillColor);
+							grid.add(s3, x, y);
+			break;
+			case 4:	Polygon s4 = new Polygon();
+					s4.getPoints().addAll(new Double[]{
+							size/7, size, 
+							size/2, 0.0,
+							(6*size/7), size,
+							0.0, size/3,
+							size, size/3
+							});
+					s4.setFill(fillColor);
+					grid.add(s4, x, y);
 		}
+		
+		
+		
 	}
-	*/
-
-
+	
 }

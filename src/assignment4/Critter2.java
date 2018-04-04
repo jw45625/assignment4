@@ -11,6 +11,8 @@ package assignment4;
 
 import java.util.*;
 
+import assignment4.Critter.CritterShape;
+
 /**
  * Critter2 make a critter that waits for Algae to grow on it then eat it.
  * this critter will try to run from all fights that are not with algae
@@ -54,6 +56,16 @@ public class Critter2 extends Critter {
 	 */
 	public String toString() {
 		return "2";
+	}
+	
+	@Override
+	public CritterShape viewShape() { 
+		return CritterShape.SQUARE; 
+	}
+
+	@Override
+	public javafx.scene.paint.Color viewOutlineColor() { 
+		return javafx.scene.paint.Color.PURPLE; 
 	}
 	
 }

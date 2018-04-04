@@ -48,6 +48,15 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 
+import java.awt.*;
+import javafx.scene.layout.*;
+import javafx.geometry.Insets;
+import java.lang.reflect.*;
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.util.Duration;
+
 
 
 /*
@@ -63,7 +72,8 @@ public class Main extends Application {
     private static String myPackage;	// package of Critter file.  Critter cannot be in default pkg.
     private static boolean DEBUG = false; // Use it or not, as you wish!
     static PrintStream old = System.out;	// if you want to restore output to console
-
+    boolean animating = false;
+    int stepsPerFrame;
 
     // Gets the package name.  The usage assumes that Critter and its subclasses are all in the same package.
     static {
@@ -107,151 +117,8 @@ public class Main extends Application {
         
         // System.out.println("GLHF");
         
-        boolean quitInput = false;
-        String[] inputs;
-        String inputString = "";
-        String command;
-        String className = myPackage;
-        String seedString;
-        String countString;
-        int count = 1;
-        int seed;
-        
         launch(args);
         
-        /*
-        while(quitInput == false) {
-        	System.out.print("critters>");
-        	try {
-        		inputString = kb.nextLine();
-        		inputString = inputString.trim();
-        		inputs = inputString.split("\\s+");
-        		
-            	command = inputs[0];
-            	if(command.equals("quit")) {
-            		if(inputs.length == 1) {
-            			quitInput = true;
-            		}
-            		else {
-            			throw new Exception();
-            		}
-            	}
-            	else if(command.equals("show")) {
-            		if(inputs.length == 1) {
-            			Critter.displayWorld();
-            		}
-            		else {
-            			throw new Exception();
-            		}
-            	}
-            	else if(command.equals("step")) {
-            		if(inputs.length > 2) {
-            			throw new Exception();
-            		}
-            		
-            		if(inputs.length > 1) {
-            			countString = inputs[1];
-            			count = Integer.parseInt(countString);
-            			System.out.println(count);
-        			}
-            		else {
-            			count = 1;
-            		}
-            		
-            		for(int i = 0 ; i < count ; i++) {
-            			Critter.worldTimeStep();
-            		}
-            	}
-            	else if(command.equals("seed")) {
-            		if(inputs.length > 2) {
-            			throw new Exception();
-            		}
-            		
-            		seedString = inputs[1];
-            		seed = Integer.parseInt(seedString);
-            		Critter.setSeed(seed);
-            	}
-            	else if(command.equals("make")) {
-            		if(inputs.length > 3) {
-            			throw new Exception();
-            		}
-            		
-            		if(inputs.length >= 2) {	
-            			if((inputs[1].charAt(0) >= 'a') && inputs[1].charAt(0) <= 'z'){
-                			className = ((char)(inputs[1].charAt(0) + 'A' - 'a')) + inputs[1].substring(1);
-                		}
-                		else {
-                			className = inputs[1];
-                		}
-            		}
-            		
-            		if(inputs.length == 3) {
-            			countString = inputs[2];
-            			count = Integer.parseInt(countString);
-            		}
-            		else {
-            			count = 1;
-            		}
-            		
-            		for(int i = 0; i < count; i++) {
-            			Critter.makeCritter(className);
-            		}
-            	}
-            	else if(command.equals("stats")) {
-            		if(inputs.length > 2) {
-            			throw new Exception();
-            		}
-            		
-            		if((inputs[1].charAt(0) >= 'a') && inputs[1].charAt(0) <= 'z'){
-            			className = ((char)(inputs[1].charAt(0) + 'A' - 'a')) + inputs[1].substring(1);
-            		}
-            		else {
-            			className = inputs[1];
-            		}
-            		
-            		Class<?> critterClass = Class.forName(myPackage + "." + className);
-            		
-            		Critter crit = (Critter) critterClass.newInstance();
-            		
-            		Method method = critterClass.getMethod("runStats", List.class);
-            		
-            		method.invoke(crit, Critter.getInstances(className));
-            	}
-            	else {
-            		System.out.println("invalid command: " + inputString);
-            	}
-        	}
-        	catch(Exception e) {
-        		System.out.println("error processing: " + inputString);
-        		System.out.println(e);
-        	}
-        	catch(Error er) {
-        		System.out.println("error processing: " + inputString);
-        		System.out.println(er);
-        	}
-        	
-        }
-        
-      
-        */
-        
-        /* Write your code above */
-        
-        /*
-        try{
-        	
-        	for(int i = 0 ; i < 100 ; i++) {
-        		Critter.makeCritter("assignment4.Algae");
-        	}
-        	for(int i = 0 ; i < 25 ; i++) {
-        		Critter.makeCritter("assignment4.Craig");
-        	}
-        }
-        catch(InvalidCritterException ice) {
-        	System.out.println(ice);
-        }
-        */
-
         System.out.flush();
 
     }
@@ -261,45 +128,52 @@ public class Main extends Application {
 		 primaryStage.setTitle("Java FX Demo Program");
 		 Critter.displayWorld();
 		 
-	     HBox quitPane = new HBox();
-	     HBox stepPane = new HBox();
-	     HBox makePane = new HBox();
-	     HBox showPane = new HBox();
-	     HBox statsPane = new HBox();
-	     HBox seedPane = new HBox();
+	     VBox quitPane = new VBox();
+	     quitPane.setBackground(new Background(new BackgroundFill(Color.BISQUE, CornerRadii.EMPTY, Insets.EMPTY)));
+	     VBox stepPane = new VBox();
+	     stepPane.setBackground(new Background(new BackgroundFill(Color.BISQUE, CornerRadii.EMPTY, Insets.EMPTY)));
+	     VBox makePane = new VBox();
+	     makePane.setBackground(new Background(new BackgroundFill(Color.BISQUE, CornerRadii.EMPTY, Insets.EMPTY)));
+	     VBox showPane = new VBox();
+	     showPane.setBackground(new Background(new BackgroundFill(Color.ALICEBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
+	     VBox statsPane = new VBox();
+	     statsPane.setBackground(new Background(new BackgroundFill(Color.ALICEBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
+	     VBox seedPane = new VBox();
+	     seedPane.setBackground(new Background(new BackgroundFill(Color.BISQUE, CornerRadii.EMPTY, Insets.EMPTY)));
+	     VBox startAnimationPane = new VBox();
+	     VBox stopAnimationPane = new VBox();
+	     HBox animationPane = new HBox();
+	     animationPane.getChildren().addAll(startAnimationPane, stopAnimationPane);
+	     animationPane.setBackground(new Background(new BackgroundFill(Color.ALICEBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
 	     StackPane outputTextPane = new StackPane();
 	     
 	     Button quitButton = new Button("quit");
 	     Label quitLabel = new Label("Press To Quit");
 	     quitPane.getChildren().addAll(quitLabel, quitButton);
-	     quitPane.resize(10000, 10000);
 
 	     Button stepButton = new Button("step");
 	     Label stepLabel = new Label("Press to step given amount of times");
 	     TextField stepText = new TextField();
-	     stepText.setText("0");
+	     stepText.setPromptText("#");
 	     stepPane.getChildren().addAll(stepLabel, stepText, stepButton);
-	     stepPane.resize(10000, 10000);
 	     
 	     Button showButton = new Button("show");
 	     Label showLabel = new Label("Press to show the world");
 	     showPane.getChildren().addAll(showLabel, showButton);
-	     showPane.resize(10000, 10000);
 	     
 	     Button makeButton = new Button("make");
 	     ComboBox<String> makeCritterBox = new ComboBox<>();
 	     Label makeLabel = new Label("Press to make # of chosen Critter");
 	     TextField makeText = new TextField(); 
-	     makeText.setText("0");
+	     makeText.setPromptText("#");
 	     makeCritterBox.getItems().addAll("Algae", "Craig", "Critter1", "Critter2");
 	     makeCritterBox.getSelectionModel().selectFirst();
 	     makePane.getChildren().addAll(makeLabel, makeCritterBox, makeText, makeButton);
-	     makePane.resize(10000, 10000);
 	     
 	     Button seedButton = new Button("seed");
 	     Label seedLabel = new Label("Press to give seed value");
 	     TextField seedText = new TextField(); 
-	     seedText.setText("0");
+	     seedText.setPromptText("#");
 	     seedPane.getChildren().addAll(seedLabel, seedText, seedButton);
 	     seedPane.resize(10000, 10000);
 	     
@@ -309,21 +183,52 @@ public class Main extends Application {
 	     statsCritterBox.getSelectionModel().selectFirst();
 	     Label statsLabel = new Label("Press to see stats of choosen Critters");
 	     statsPane.getChildren().addAll(statsLabel, statsCritterBox, statsButton);
-	     statsPane.resize(10000, 10000);
 	     
-	     Label outputText = new Label();
-	     outputTextPane.getChildren().add(outputText);
+	     Button animationButton = new Button("Start Animate");
+	     Button stopAnimationButton = new Button("Stop Animation");
+	     Label startAnimationLabel = new Label("Press to start animation");
+	     Label stopAnimationLabel = new Label("Press to stop animation");
+	     ComboBox<String> animationNumBox = new ComboBox<>();
+	     animationNumBox.getItems().addAll("2", "3", "5", "10");
+	     animationNumBox.getSelectionModel().selectFirst();
+	     startAnimationPane.getChildren().addAll(startAnimationLabel, animationNumBox, animationButton);
+	     stopAnimationPane.getChildren().addAll(stopAnimationLabel, stopAnimationButton);
+	     
+	     Label statsOutput = new Label();
+	     statsOutput.setWrapText(true);
+	     statsOutput.setBackground(new Background(new BackgroundFill(Color.DARKGRAY, CornerRadii.EMPTY, Insets.EMPTY)));
+	     statsOutput.setPrefSize(600,100);
+	     statsOutput.setText("Stats");
+	     
+	     
+	     stepsPerFrame = Integer.parseInt(animationNumBox.getValue());
+    	 Timeline tl = new Timeline();
+    	 tl.setCycleCount(Animation.INDEFINITE);
+    	 KeyFrame critterAnimation = new KeyFrame(Duration.seconds(0.5), 
+    			new EventHandler<ActionEvent>() {
+    		 		public void handle(ActionEvent event) {
+	           			for(int i = 0 ; i < stepsPerFrame ; i++) {
+	           				Critter.worldTimeStep();
+	           			}
+	           			Critter.displayWorld();
+    		 		}
+	           	});
+
+	     tl.getKeyFrames().add(critterAnimation);
+	     
+	     FlowPane statsOutputPane = new FlowPane();
+	     statsOutputPane.getChildren().add(statsOutput);
 	     
 	     makeButton.setOnAction(e-> {
 	    	 String className = makeCritterBox.getValue();
     		 try{
-    			 Critter.makeCritter(className);
     			 int count = Integer.parseInt(makeText.getText());
     			 
-    			 for(int i = 0; i < count ; i++) {
+    			 for(int i = 0 ; i < count ; i++) {
     				 Critter.makeCritter(className);
     			 }
     			 
+    			 Critter.displayWorld();
     			 makeText.setText("0");
     		 }
     		 catch(Exception exep) {
@@ -335,7 +240,7 @@ public class Main extends Application {
     		 try{
     			 int count = Integer.parseInt(stepText.getText());
     			 
-    			 for(int i = 0; i < count ; i++) {
+    			 for(int i = 0 ; i < count ; i++) {
     				 Critter.worldTimeStep();
     			 }
     			 
@@ -347,7 +252,6 @@ public class Main extends Application {
 	     });
 	     
 	     statsButton.setOnAction(e-> {
-	    	 
 	    	 try{
 	    		 String className = statsCritterBox.getValue();
 		    	 Class<?> critterClass = Class.forName(myPackage + "." + className);
@@ -355,13 +259,13 @@ public class Main extends Application {
 		    	 Critter crit = (Critter) critterClass.newInstance();
 	     		
 		    	 Method method = critterClass.getMethod("runStats", List.class);
-	     		
-		    	 method.invoke(crit, Critter.getInstances(className));
-	    		 Critter.runStats(Critter.getInstances(className));
+		    	 
+	    		 String statsInfo = (String) method.invoke(crit, Critter.getInstances(className));
+	    		 statsOutput.setText(statsInfo);
 	    		 //outputText.setText(old.);
 	    	 }
-	    	 catch(Exception exep) {
-	    		 System.out.println(exep);
+	    	 catch(Exception excep) {
+	    		 System.out.println(excep);
 	    	 }
 	     });
 	     
@@ -378,10 +282,35 @@ public class Main extends Application {
 	     showButton.setOnAction(e-> {
 	    	 Critter.displayWorld();
 	     });
+	     
+	     animationButton.setOnAction(e->{
+	    	 makeButton.setDisable(true);
+	    	 stepButton.setDisable(true);
+	    	 quitButton.setDisable(true);
+	    	 stepButton.setDisable(true);
+		     showButton.setDisable(true);
+		     makeButton.setDisable(true);
+		     seedButton.setDisable(true);
+		     animating = true;
+		     stepsPerFrame = Integer.parseInt(animationNumBox.getValue());
+		     tl.play();
+	    	 
+	     });
 	        
+	     stopAnimationButton.setOnAction(e->{
+		     animating = false;
+		     makeButton.setDisable(false);
+	    	 stepButton.setDisable(false);
+	    	 quitButton.setDisable(false);
+	    	 stepButton.setDisable(false);
+		     showButton.setDisable(false);
+		     makeButton.setDisable(false);
+		     seedButton.setDisable(false);
+		     tl.pause();
+	     });
 	     VBox primaryRootPane = new VBox();
-	     Scene primaryScene = new Scene(primaryRootPane, 600, 500);
-	     primaryRootPane.getChildren().addAll(makePane, showPane, stepPane, statsPane, seedPane, quitPane);
+	     Scene primaryScene = new Scene(primaryRootPane, 600, 800);
+	     primaryRootPane.getChildren().addAll(makePane, showPane, stepPane, statsPane, seedPane, animationPane, quitPane, statsOutputPane);
 	     
 	     primaryStage.setScene(primaryScene);
 	     primaryStage.sizeToScene();
