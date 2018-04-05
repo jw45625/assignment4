@@ -29,6 +29,8 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.StackPane;
 
 import javafx.scene.text.*;
+import javafx.scene.layout.*;
+import javafx.geometry.*;
 
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.*;
@@ -46,34 +48,34 @@ public class View extends Application{
 	}
 	public View() {
 		grid = new GridPane();
+		grid.setBackground(new Background(new BackgroundFill(Color.VIOLET, CornerRadii.EMPTY, Insets.EMPTY)));
 		FlowPane viewRootPane = new FlowPane();
 		
-		
-		if(Params.world_height > 100) {
-			size = 8;
+		if((1000 / Params.world_height) > 900) {
+			size = 9;
 		}
 		else {
-			size = (double) 800 / Params.world_height;
+			size = (((double) 1000 / Params.world_height) - 1);
 		}
 		
 		Stage viewStage = new Stage();
 		viewRootPane.getChildren().addAll(grid);
-	    Scene viewScene = new Scene(viewRootPane, 1600, 1000);
-	     
+	    Scene viewScene = new Scene(viewRootPane, 1000, 1000);
+	    
 	    viewStage.setScene(viewScene);
 	    viewStage.setTitle("Critter World");
 	    viewStage.show();
 	}
 	
 	public void paintGridLines() {
-		for (int r = 0; r < Params.world_height; r++)
+		for (int r = 0; r < Params.world_height; r++) {
 			for (int c = 0; c < Params.world_width; c++) {
 				Shape s = new Rectangle(size, size);
 				s.setFill(null);
-				s.setStroke(Color.BLUEVIOLET);
+				s.setStroke(Color.BLACK);
 				grid.add(s, c, r);
 			}
-
+		}
 	}
 	
 	public void clearGrid() {

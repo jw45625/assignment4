@@ -482,42 +482,6 @@ public abstract class Critter {
 	 * 
 	 */
 	public static void displayWorld() {
-		/*
-		System.out.print("+");
-		
-		for(int j = 0 ; j < Params.world_width ; j++) {
-			System.out.print("-");
-		}
-		
-		System.out.println("+");
-		
-		for(int i = 0 ; i < Params.world_height ; i++) {
-			System.out.print("|");
-			
-			for(int j = 0 ; j < Params.world_width ; j++) {
-				boolean displayedCritter = false;
-				for(Critter c : population) {
-					if((c.x_coord == j) && (c.y_coord == i) && (displayedCritter == false)) {
-						displayedCritter = true;
-						System.out.print(c);
-					}
-				}
-				if(displayedCritter == false) {
-					System.out.print(" ");
-				}
-			}
-			
-			System.out.println("|");
-		}
-		
-		System.out.print("+");
-		
-		for(int j = 0 ; j < Params.world_width ; j++) {
-			System.out.print("-");
-		}
-		
-		System.out.println("+");
-		*/
 		viewer.clearGrid();
 		
 		viewer.paintGridLines();
@@ -525,8 +489,10 @@ public abstract class Critter {
 		
 		for(int i = 0 ; i < Params.world_height ; i++) {
 			for(int j = 0 ; j < Params.world_width ; j++) {
+				boolean critterDisplayed = false;
 				for(Critter crit : population) {
-					if((crit.x_coord == j) && (crit.y_coord == i)) {
+					if((crit.x_coord == j) && (crit.y_coord == i) && (!critterDisplayed)) {
+						critterDisplayed = true;
 						int index = -1;
 						Shape s;
 						switch(crit.viewShape()) {

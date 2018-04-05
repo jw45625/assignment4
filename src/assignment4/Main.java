@@ -56,6 +56,7 @@ import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.util.Duration;
+import java.util.*;
 
 
 
@@ -74,6 +75,7 @@ public class Main extends Application {
     static PrintStream old = System.out;	// if you want to restore output to console
     boolean animating = false;
     int stepsPerFrame;
+    String statsString = "";
 
     // Gets the package name.  The usage assumes that Critter and its subclasses are all in the same package.
     static {
@@ -123,6 +125,18 @@ public class Main extends Application {
 
     }
     
+    public static void showFiles(File[] files) {
+	    for (File file : files) {
+	        if (file.isDirectory()) {
+	            System.out.println("Directory: " + file.getName());
+	            showFiles(file.listFiles()); // Calls same method again.
+	        } else {
+	            System.out.println("File: " + file.getName());
+	        }
+	    }
+	}
+ 
+    
     @Override
 	 public void start(Stage primaryStage) {
 		 primaryStage.setTitle("Java FX Demo Program");
@@ -166,9 +180,9 @@ public class Main extends Application {
 	     Label makeLabel = new Label("Press to make # of chosen Critter");
 	     TextField makeText = new TextField(); 
 	     makeText.setPromptText("#");
-	     makeCritterBox.getItems().addAll("Algae", "Craig", "Critter1", "Critter2");
-	     makeCritterBox.getSelectionModel().selectFirst();
-	     makePane.getChildren().addAll(makeLabel, makeCritterBox, makeText, makeButton);
+	     TextField makeCritterText = new TextField(); 
+	     makeCritterText.setPromptText("Critter");
+	     makePane.getChildren().addAll(makeLabel, makeCritterText, makeText, makeButton);
 	     
 	     Button seedButton = new Button("seed");
 	     Label seedLabel = new Label("Press to give seed value");
@@ -179,10 +193,10 @@ public class Main extends Application {
 	     
 	     Button statsButton = new Button("stats");
 	     ComboBox<String> statsCritterBox = new ComboBox<>();
-	     statsCritterBox.getItems().addAll("Algae", "Craig", "Critter1", "Critter2");
-	     statsCritterBox.getSelectionModel().selectFirst();
+	     TextField statsCritterText = new TextField(); 
+	     statsCritterText.setPromptText("Critter");
 	     Label statsLabel = new Label("Press to see stats of choosen Critters");
-	     statsPane.getChildren().addAll(statsLabel, statsCritterBox, statsButton);
+	     statsPane.getChildren().addAll(statsLabel, statsCritterText, statsButton);
 	     
 	     Button animationButton = new Button("Start Animate");
 	     Button stopAnimationButton = new Button("Stop Animation");
@@ -220,7 +234,7 @@ public class Main extends Application {
 	     statsOutputPane.getChildren().add(statsOutput);
 	     
 	     makeButton.setOnAction(e-> {
-	    	 String className = makeCritterBox.getValue();
+	    	 String className = makeCritterText.getText();
     		 try{
     			 int count = Integer.parseInt(makeText.getText());
     			 
@@ -229,10 +243,11 @@ public class Main extends Application {
     			 }
     			 
     			 Critter.displayWorld();
-    			 makeText.setText("0");
+    			 makeText.setPromptText("#");
+    			 makeCritterText.setPromptText("Critter");
     		 }
     		 catch(Exception exep) {
-    			 System.out.println(exep);
+    			 statsOutput.setText("Error: invalid Critter or Num");
     		 }
 	     });
 	     
@@ -243,8 +258,18 @@ public class Main extends Application {
     			 for(int i = 0 ; i < count ; i++) {
     				 Critter.worldTimeStep();
     			 }
-    			 
-    			 stepText.setText("0");
+    			 Critter.displayWorld();
+    			 if(!statsString.equals("")) {
+    				 Class<?> critterClass = Class.forName(myPackage + "." + statsString);
+    		     		
+    		    	 Critter crit = (Critter) critterClass.newInstance();
+    	     		
+    		    	 Method method = critterClass.getMethod("runStats", List.class);
+    		    	 
+    	    		 String statsInfo = (String) method.invoke(crit, Critter.getInstances(statsString));
+    	    		 statsOutput.setText(statsInfo);
+    			 }
+    			 stepText.setPromptText("0");
     		 }
     		 catch(Exception exep) {
     			 System.out.println(exep);
@@ -253,7 +278,7 @@ public class Main extends Application {
 	     
 	     statsButton.setOnAction(e-> {
 	    	 try{
-	    		 String className = statsCritterBox.getValue();
+	    		 String className = statsCritterText.getText();
 		    	 Class<?> critterClass = Class.forName(myPackage + "." + className);
 	     		
 		    	 Critter crit = (Critter) critterClass.newInstance();
@@ -262,10 +287,11 @@ public class Main extends Application {
 		    	 
 	    		 String statsInfo = (String) method.invoke(crit, Critter.getInstances(className));
 	    		 statsOutput.setText(statsInfo);
-	    		 //outputText.setText(old.);
+	    		 statsString = className;
+	    		 statsCritterText.setPromptText("Critter");
 	    	 }
-	    	 catch(Exception excep) {
-	    		 System.out.println(excep);
+	    	 catch(Exception exep) {
+	    		 statsOutput.setText("Error: invalid Critter or Num");
 	    	 }
 	     });
 	     
@@ -276,7 +302,7 @@ public class Main extends Application {
 	     seedButton.setOnAction(e-> {
 	    	 int seed = Integer.parseInt(seedText.getText());
 	    	 Critter.setSeed(seed);
-	    	 seedText.setText("0");
+	    	 seedText.setPromptText("#");
 	     });
 	     
 	     showButton.setOnAction(e-> {
@@ -289,22 +315,20 @@ public class Main extends Application {
 	    	 quitButton.setDisable(true);
 	    	 stepButton.setDisable(true);
 		     showButton.setDisable(true);
-		     makeButton.setDisable(true);
+		     statsButton.setDisable(true);
 		     seedButton.setDisable(true);
-		     animating = true;
 		     stepsPerFrame = Integer.parseInt(animationNumBox.getValue());
 		     tl.play();
 	    	 
 	     });
 	        
 	     stopAnimationButton.setOnAction(e->{
-		     animating = false;
 		     makeButton.setDisable(false);
 	    	 stepButton.setDisable(false);
 	    	 quitButton.setDisable(false);
 	    	 stepButton.setDisable(false);
 		     showButton.setDisable(false);
-		     makeButton.setDisable(false);
+		     statsButton.setDisable(false);
 		     seedButton.setDisable(false);
 		     tl.pause();
 	     });
